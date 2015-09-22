@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">LeilaoDojo</string>
+
+    <string name="hello_world">Coding Dojo!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_view">ViewActivity</string>
+    <string name="btn_camera_view">Chama Camera</string>
+    <string name="realizar_lance">Realizar Lance</string>
+    <string name="nome_produto">Nome Produto</string>
+    <string name="descricao">Descrição</string>
+    <string name="valor_produto">Valor Produto</string>
+    <string name="ok">Ok</string>
+    <string name="tirar_foto">Tirar foto</string>
+    <string name="login_facebook">login com facebook</string>
+    <string name="login_google">login com Google Plus</string>
+    <string name="registrar_depois">Registrar Depois</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="ultimo_lance">Último lance: R$</string>
+    <string name="novo">Novo</string>
+    <string name="gcm_defaultSenderId">36242552185</string>
+    <string name="tempo_leilao">Tempo de leilão</string>
+</resources>

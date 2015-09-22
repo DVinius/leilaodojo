@@ -1,0 +1,99 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="br.com.vsgdev.leilaodojo.activities.ViewActivity">
+
+
+    <ImageView
+        android:id="@+id/imv_produto"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/view_txt_ultimo_lance"
+        style="@style/Texto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imv_produto"
+        android:text="Ultimo Lance" />
+
+    <TextView
+        android:layout_marginLeft="20dp"
+        android:id="@+id/view_txt_valor_ultimo_lance"
+        style="@style/Texto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imv_produto"
+        android:layout_toRightOf="@+id/view_txt_ultimo_lance"
+        android:text="R$" />
+
+    <TextView
+        android:id="@+id/view_txt_nome_item"
+        style="@style/Texto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_txt_ultimo_lance"
+        android:text="Nome do Item" />
+
+    <TextView
+        android:layout_marginLeft="20dp"
+        android:id="@+id/view_txt_campo_descricao_item"
+        style="@style/Texto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/view_txt_nome_item"
+        android:layout_below="@id/view_txt_ultimo_lance"
+        android:text="d" />
+
+
+    <TextView
+        android:id="@+id/view_txt_descrito"
+        style="@style/Texto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_txt_campo_descricao_item"
+        android:text="Descrição do Item:" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/view_text_desc"
+        style="@style/Texto"
+        android:layout_marginLeft="20dp"
+        android:layout_below="@id/view_txt_campo_descricao_item"
+        android:layout_toRightOf="@id/view_txt_descrito"
+        android:text="Descricao"/>
+
+    <TextView
+        android:text="Lance: R$"
+        style="@style/Texto"
+        android:id="@+id/view_edit_lance"
+        android:layout_below="@id/view_txt_descrito"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/lance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view_edit_lance"
+        android:hint="Digite seu lance"
+        android:inputType="numberDecimal"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn"
+        android:layout_below="@+id/lance"
+        android:text="@string/realizar_lance"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

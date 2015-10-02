@@ -11,11 +11,17 @@ public class Product {
     public Bitmap imgProduto;
     public String nomeProduto;
     public String descProduto;
-    public float valorEstimado;
+    public double valorEstimado;
+    //ultimo lance ofertado neste produto
+    public double lastBid;
     private int tempo;
 
     public Product() {
         super();
+    }
+
+    public Product(int id) {
+        this.id = id;
     }
 
     public Product(Bitmap imgProduto, String nomeProduto, String descProduto, float valorEstimado, int tempo) {
@@ -24,6 +30,14 @@ public class Product {
         this.descProduto = descProduto;
         this.valorEstimado = valorEstimado;
         this.tempo = tempo;
+    }
+
+    public double getLastBid() {
+        return lastBid;
+    }
+
+    public void setLastBid(double lastBid) {
+        this.lastBid = lastBid;
     }
 
     public int getId() {
@@ -58,11 +72,11 @@ public class Product {
         this.descProduto = descProduto;
     }
 
-    public float getValorEstimado() {
+    public double getValorEstimado() {
         return valorEstimado;
     }
 
-    public void setValorEstimado(float valorEstimado) {
+    public void setValorEstimado(double valorEstimado) {
         this.valorEstimado = valorEstimado;
     }
 
@@ -72,5 +86,13 @@ public class Product {
 
     public void setTempo(int tempo) {
         this.tempo = tempo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Product){
+            return getId() == ((Product) o).getId();
+        }
+        return super.equals(o);
     }
 }

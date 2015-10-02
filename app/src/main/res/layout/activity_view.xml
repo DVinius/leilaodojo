@@ -18,7 +18,6 @@
 
     <TextView
         android:id="@+id/view_txt_ultimo_lance"
-        style="@style/Texto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/imv_produto"
@@ -27,7 +26,6 @@
     <TextView
         android:layout_marginLeft="20dp"
         android:id="@+id/view_txt_valor_ultimo_lance"
-        style="@style/Texto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imv_produto"
@@ -36,7 +34,6 @@
 
     <TextView
         android:id="@+id/view_txt_nome_item"
-        style="@style/Texto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/view_txt_ultimo_lance"
@@ -45,7 +42,6 @@
     <TextView
         android:layout_marginLeft="20dp"
         android:id="@+id/view_txt_campo_descricao_item"
-        style="@style/Texto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/view_txt_nome_item"
@@ -55,7 +51,6 @@
 
     <TextView
         android:id="@+id/view_txt_descrito"
-        style="@style/Texto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/view_txt_campo_descricao_item"
@@ -65,7 +60,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/view_text_desc"
-        style="@style/Texto"
         android:layout_marginLeft="20dp"
         android:layout_below="@id/view_txt_campo_descricao_item"
         android:layout_toRightOf="@id/view_txt_descrito"
@@ -73,7 +67,6 @@
 
     <TextView
         android:text="Lance: R$"
-        style="@style/Texto"
         android:id="@+id/view_edit_lance"
         android:layout_below="@id/view_txt_descrito"
         android:layout_width="wrap_content"

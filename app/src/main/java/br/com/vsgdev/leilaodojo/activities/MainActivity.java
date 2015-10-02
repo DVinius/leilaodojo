@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -18,6 +19,10 @@ import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.plus.Plus;
 
 import java.util.ArrayList;
 
@@ -25,11 +30,16 @@ import br.com.vsgdev.leilaodojo.R;
 import br.com.vsgdev.leilaodojo.models.Product;
 import br.com.vsgdev.leilaodojo.services.RegistrationIntentService;
 import br.com.vsgdev.leilaodojo.utils.QuickstartPreferences;
+import br.com.vsgdev.leilaodojo.utils.WebServiceUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 1;
     private ListView produtos;
+    private Adapter productAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        if (checkPlayServices() && !sentToken) {
+        if (checkPlayServices()) {
             // Start IntentService to register this application with GCM.
             Intent intent = new Intent(this, RegistrationIntentService.class);
             startService(intent);
@@ -59,19 +69,20 @@ public class MainActivity extends AppCompatActivity {
 
         produtos = (ListView) findViewById(R.id.lv_Produtos);
         final ArrayList<Product> listProducts = new ArrayList<>();
-        Product produto = new Product(null,"moto","Honda",7000, 48);
-        listProducts.add(produto);
-        Adapter productAdapter = new Adapter(this, listProducts);
+        Product produto = new Product(null, "moto", "Honda", 7000, 48);
+        produto.setId(0);
+        //listProducts.add(produto);
+        productAdapter = new Adapter(this, listProducts);
         produtos.setAdapter(productAdapter);
         produtos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Intent intent = new Intent(MainActivity.this,ViewActivity.class);
+                Intent intent = new Intent(MainActivity.this, ViewActivity.class);
                 Product produto = listProducts.get(position);
-                intent.putExtra("nomeProduto",produto.getNomeProduto());
-                intent.putExtra("descProduto",produto.getDescProduto());
-                intent.putExtra("valorProduto",produto.getValorEstimado());
+                intent.putExtra("nomeProduto", produto.getNomeProduto());
+                intent.putExtra("descProduto", produto.getDescProduto());
+                intent.putExtra("valorProduto", produto.getValorEstimado());
                 startActivity(intent);
             }
         });
@@ -82,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+        updateAuctionList();
+    }
+
+    private void updateAuctionList(){
+        WebServiceUtils.getNextAuction(productAdapter, this);
     }
 
     @Override
@@ -129,5 +145,21 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        //TODO XXX continue
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+
+
     }
 }

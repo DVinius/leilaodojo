@@ -3,6 +3,7 @@ package br.com.vsgdev.leilaodojo.activities;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,17 @@ public class Adapter extends BaseAdapter {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
+    public void addItem(final Product product){
+        this.list.add(product);
+    }
+
+    public Product getLast(){
+        if (this.list != null){
+            return getItem(this.list.size()-1);
+        }
+        return null;
+    }
+
     @Override
     public int getCount() {
         return list.size();
@@ -34,7 +46,10 @@ public class Adapter extends BaseAdapter {
 
     @Override
     public Product getItem(int position) {
-        return list.get(position);
+        if (!this.list.isEmpty()){
+            return list.get(position);
+        }
+        return null;
     }
 
     @Override
@@ -51,7 +66,7 @@ public class Adapter extends BaseAdapter {
             productHolder = new Holder();
             productHolder.holderDescricao = (TextView) view.findViewById(R.id.tv_descricao);
             productHolder.holderNome = (TextView) view.findViewById(R.id.tv_nomeProduto);
-            productHolder.holderValor = (TextView) view.findViewById(R.id.tv_ultimoLance);
+            productHolder.lastBid = (TextView) view.findViewById(R.id.tv_ultimoLance);
             productHolder.holderImagem = (ImageView) view.findViewById(R.id.iv_imgProduto);
 
             view.setTag(productHolder);
@@ -65,10 +80,14 @@ public class Adapter extends BaseAdapter {
         productHolder.holderNome.setText(auctionProduct.getNomeProduto());
         productHolder.holderDescricao.setText(auctionProduct.getDescProduto());
         //formatar para R$ N.NNN,NN
-        DecimalFormat last = new DecimalFormat("#.###");
-        productHolder.holderValor.setText("R$ "+last.format(auctionProduct.getValorEstimado()));
+        DecimalFormat last = new DecimalFormat("####.##");
+        productHolder.lastBid.setText("R$ "+last.format(auctionProduct.getLastBid()));
         //a exibicao da imagem será tratada em evento posterior. No momento está exibindo o icone do launcher
-        productHolder.holderImagem.setImageBitmap(null);
+        if (auctionProduct.getImgProduto() == null){
+            productHolder.holderImagem.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
+        } else {
+            productHolder.holderImagem.setImageBitmap(auctionProduct.getImgProduto());
+        }
 
         return view;
     }
@@ -76,7 +95,7 @@ public class Adapter extends BaseAdapter {
     public class Holder {
         TextView holderNome;
         TextView holderDescricao;
-        TextView holderValor;
+        TextView lastBid;
         ImageView holderImagem;
     }
 }

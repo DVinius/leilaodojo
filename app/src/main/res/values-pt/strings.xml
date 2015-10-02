@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Meu Leilão</string>
+    <string name="action_settings">Configurações</string>
+    <string name="btn_camera_view">Foto do Item</string>
+    <string name="descricao">Descrição</string>
+    <string name="login_facebook">login com facebook</string>
+    <string name="login_google">login com Google Plus</string>
+    <string name="nome_produto">Nome do Produto</string>
+    <string name="novo">Novo</string>
+    <string name="realizar_lance">Realizar Lance</string>
+    <string name="registrar_depois">Registrar Depois</string>
+    <string name="tempo_leilao">Tempo em Leilão</string>
+    <string name="tirar_foto">Tirar Foto</string>
+    <string name="ultimo_lance">Último lance: R$</string>
+    <string name="valor_produto">Valor Produto</string>
+
+    <string-array name="selecione">
+        <item>Galeria</item>
+        <item>Camera</item>
+    </string-array>
+</resources>

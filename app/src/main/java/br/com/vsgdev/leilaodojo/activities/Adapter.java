@@ -2,8 +2,6 @@ package br.com.vsgdev.leilaodojo.activities;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,26 +13,28 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import br.com.vsgdev.leilaodojo.R;
+import br.com.vsgdev.leilaodojo.models.Auction;
 import br.com.vsgdev.leilaodojo.models.Product;
+import br.com.vsgdev.leilaodojo.utils.DateTimeUtils;
 
 public class Adapter extends BaseAdapter {
     private Context context;
-    private ArrayList<Product> list;
+    private ArrayList<Auction> list;
     LayoutInflater inflater;
 
-    public Adapter(Context context, ArrayList<Product> list) {
+    public Adapter(Context context, ArrayList<Auction> list) {
         this.context = context;
         this.list = list;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addItem(final Product product){
-        this.list.add(product);
+    public void addItem(final Auction auction) {
+        this.list.add(auction);
     }
 
-    public Product getLast(){
-        if (this.list != null){
-            return getItem(this.list.size()-1);
+    public Auction getLast() {
+        if (this.list != null) {
+            return getItem(this.list.size() - 1);
         }
         return null;
     }
@@ -45,8 +45,8 @@ public class Adapter extends BaseAdapter {
     }
 
     @Override
-    public Product getItem(int position) {
-        if (!this.list.isEmpty()){
+    public Auction getItem(int position) {
+        if (!this.list.isEmpty()) {
             return list.get(position);
         }
         return null;
@@ -64,7 +64,7 @@ public class Adapter extends BaseAdapter {
         if (convertView == null) {
             view = inflater.inflate(R.layout.item_protuct, parent, false);
             productHolder = new Holder();
-            productHolder.holderDescricao = (TextView) view.findViewById(R.id.tv_descricao);
+            productHolder.endAt = (TextView) view.findViewById(R.id.tv_item_list_end_at);
             productHolder.holderNome = (TextView) view.findViewById(R.id.tv_nomeProduto);
             productHolder.lastBid = (TextView) view.findViewById(R.id.tv_ultimoLance);
             productHolder.holderImagem = (ImageView) view.findViewById(R.id.iv_imgProduto);
@@ -76,17 +76,22 @@ public class Adapter extends BaseAdapter {
         }
 
         //coleta o item da posicao e adiciona os valores aos campos da lista
-        final Product auctionProduct = getItem(position);
+        final Auction auction = getItem(position);
+        final Product auctionProduct = auction.getProduct();
         productHolder.holderNome.setText(auctionProduct.getNomeProduto());
-        productHolder.holderDescricao.setText(auctionProduct.getDescProduto());
+        //productHolder.holderDescricao.setText(auctionProduct.getDescProduto());
         //formatar para R$ N.NNN,NN
         DecimalFormat last = new DecimalFormat("####.##");
-        productHolder.lastBid.setText("R$ "+last.format(auctionProduct.getLastBid()));
+        productHolder.lastBid.setText(context.getString(R.string.last_bid, last.format(auctionProduct.getLastBid())));
         //a exibicao da imagem será tratada em evento posterior. No momento está exibindo o icone do launcher
-        if (auctionProduct.getImgProduto() == null){
+        if (auctionProduct.getImgProduto() == null) {
             productHolder.holderImagem.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
         } else {
             productHolder.holderImagem.setImageBitmap(auctionProduct.getImgProduto());
+        }
+
+        if (auction.getEndAt() != null){
+            productHolder.endAt.setText(context.getString(R.string.end_at_hours, DateTimeUtils.getEndAtRemainingTime(auction)));
         }
 
         return view;
@@ -94,7 +99,7 @@ public class Adapter extends BaseAdapter {
 
     public class Holder {
         TextView holderNome;
-        TextView holderDescricao;
+        TextView endAt;
         TextView lastBid;
         ImageView holderImagem;
     }

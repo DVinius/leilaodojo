@@ -18,8 +18,10 @@ package br.com.vsgdev.leilaodojo.utils;
 
 
 public class QuickstartPreferences {
-
+    public static final String PREFS_NAME = "prefsName";
     public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
+    //for plus sign in
+    public static final String IS_SIGNED_IN_WITH_PLUS = "isSignedInPlus";
 
 }

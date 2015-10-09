@@ -1,33 +1,31 @@
 package br.com.vsgdev.leilaodojo.activities;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
-
-import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Calendar;
 
 import br.com.vsgdev.leilaodojo.R;
@@ -53,12 +51,10 @@ public class NewProduct extends AppCompatActivity {
     private CameraPreview mPreview;
     private Camera mCamera;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_product);
-
         nome = (EditText) findViewById(R.id.edt_nome_produto);
         descricao = (EditText) findViewById(R.id.edt_desc_produto);
         valor = (EditText) findViewById(R.id.edt_valor_produto);
@@ -82,9 +78,11 @@ public class NewProduct extends AppCompatActivity {
                 auction.setProduct(product);
                 final User thisUser = new User();
                 thisUser.setDeviceId(JSONConverter.deviceId);
-                //TODO XXX completar com demais dados posteriormente
+                releaseCamps(false);
                 auction.setOwner(thisUser);
-                WebServiceUtils.registerAuction(auction, getApplicationContext());
+                auction.getProduct().setImgProduto(((BitmapDrawable) iv_camera.getDrawable()).getBitmap());
+
+                WebServiceUtils.registerAuction(auction, NewProduct.this);
             }
 
 
@@ -105,8 +103,9 @@ public class NewProduct extends AppCompatActivity {
                                                 break;
                                             case 1://from camera
                                                 //startActivity(new Intent(NewPetActivity.this, MainActivity.class));
-                                                //prepareCamera();
-
+                                                prepareCamera();
+                                                /*
+                                                linearLayout_options.setVisibility(View.VISIBLE);
 
                                                 if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
                                                     // this device has a camera
@@ -128,7 +127,7 @@ public class NewProduct extends AppCompatActivity {
                                                     // no camera on this device
                                                     Toast.makeText(NewProduct.this, "Não possui camera", Toast.LENGTH_SHORT).show();
                                                 }
-
+                                                */
                                                 break;
                                         }
                                     }
@@ -157,13 +156,13 @@ public class NewProduct extends AppCompatActivity {
     }
 
     public Camera getCameraInstance() {
-        Camera c = null;
+
         try {
-            c = Camera.open(cameraID); // attempt to get a Camera instance
+            mCamera = Camera.open(cameraID); // attempt to get a Camera instance
         } catch (Exception e) {
             // Camera is not available (in use or does not exist)
         }
-        return c; // returns null if camera is unavailable
+        return mCamera; // returns null if camera is unavailable
     }
 
     @Override
@@ -179,6 +178,8 @@ public class NewProduct extends AppCompatActivity {
                 case RESULT_OK:
                     //final ImageView imageView = (ImageView) findViewById(R.id.iv_photo_taken);
                     Bitmap photoTaken = BitmapFactory.decodeFile(pictureUri.getPath());
+
+                    photoTaken = scaleBitmap(photoTaken);
 
                     final ExifInterface ei;
                     try {
@@ -203,10 +204,118 @@ public class NewProduct extends AppCompatActivity {
             }
         } else {
             if (requestCode == REQUEST_CODE_GET_IMAGE_FILE) {
-                //TODO XXX
+                try {
+                    final Uri uri = data.getData();
+                    InputStream stream = getContentResolver().openInputStream(data.getData());
+                    Bitmap bitmap = BitmapFactory.decodeStream(stream);
+                    stream.close();
+
+                    bitmap = scaleBitmap(bitmap);
+
+                    ExifInterface ei;
+
+                    try {
+                        ei = new ExifInterface(uri.getPath());
+                        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        switch (orientation) {
+                            case ExifInterface.ORIENTATION_ROTATE_90:
+                                bitmap = rotateImage(bitmap, 90);
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_180:
+                                bitmap = rotateImage(bitmap, 180);
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_270:
+                                bitmap = rotateImage(bitmap, 270);
+                                break;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    iv_camera.setImageBitmap(bitmap);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
     }
 
+    private Bitmap scaleBitmap(final Bitmap bitmap) {
+        int newWidth;
+        int newHeight;
+        float scale;
+        if (bitmap.getHeight() > bitmap.getWidth()) {
+            if (bitmap.getHeight() == 640) {
+                return bitmap;
+            }
+            scale = bitmap.getHeight() / 640;
+        } else {
+            if (bitmap.getWidth() == 640) {
+                return bitmap;
+            }
+            scale = bitmap.getWidth() / 640;
+        }
+        newWidth = (int) (bitmap.getWidth() / scale);
+        newHeight = (int) (bitmap.getHeight() / scale);
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false);
+    }
+
+    @Override
+    protected void onStop() {
+        if (mCamera != null)
+            mCamera.release();
+        super.onStop();
+    }
+
+    /**
+     * Prepara recursos para captura de foto utilizando a camera do dispositivo.
+     */
+    private void prepareCamera() {
+        //Intent solicitando utilização da camera
+        final Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        //Verifica se existe atividade para tal finalidade
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            //cria o diretorio onde serao armazenadas as imagens
+            File dir = new File(Environment.getExternalStorageDirectory()
+                    .getAbsolutePath() + "/" + getString(R.string.app_name));
+            final boolean makeDir = dir.mkdirs();
+            if (makeDir) {
+                Log.i(MainActivity.class.getName(), "Directory created");
+            } else {
+                Log.i(MainActivity.class.getName(), "Directory already exists");
+            }
+
+            //cria arquivo temporario para salvar foto
+            File imageFile = null;
+            if (dir.exists()) {
+                try {
+                    //indica prefixo, sufixo (extensa) e diretorio (dir) do arquivo temporario
+                    imageFile = File.createTempFile("IMG_", ".jpg", dir);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (imageFile != null) {
+                //converte o local (path) em Uri (necessario para camera salvar/substituir o arquivo
+                pictureUri = Uri.fromFile(imageFile);
+                //informa Uri
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+                //inicia Activity da cam
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    public void releaseCamps(boolean block) {
+        nome.setEnabled(block);
+        descricao.setEnabled(block);
+        tempoLeilao.setEnabled(block);
+        valor.setEnabled(block);
+        preview.setEnabled(block);
+        iv_camera.setEnabled(block);
+    }
 }

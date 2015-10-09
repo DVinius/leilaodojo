@@ -3,8 +3,11 @@ package br.com.vsgdev.leilaodojo.activities;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 
 import java.io.IOException;
 
@@ -31,10 +34,18 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         // The Surface has been created, now tell the camera where to draw the preview.
         try {
             mCamera.setPreviewDisplay(holder);
+            final Camera.Parameters params = mCamera.getParameters();
+            params.setPreviewSize(640, 480);
+            mCamera.setParameters(params);
             mCamera.startPreview();
         } catch (IOException e) {
             Log.d("Camera Preview", "Error setting camera preview: " + e.getMessage());
         }
+    }
+
+    public void removePreview() {
+        mCamera.stopPreview();
+        mCamera.release();
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
@@ -59,6 +70,29 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // set preview size and make any resize, rotate or
         // reformatting changes here
+
+        Camera.Parameters parameters = mCamera.getParameters();
+        Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+        if (display.getRotation() == Surface.ROTATION_0) {
+            parameters.setPreviewSize(640, 480);
+            mCamera.setDisplayOrientation(90);
+        }
+
+        if (display.getRotation() == Surface.ROTATION_90) {
+            parameters.setPreviewSize(480, 640);
+        }
+
+        if (display.getRotation() == Surface.ROTATION_180) {
+            parameters.setPreviewSize(640, 480);
+        }
+
+        if (display.getRotation() == Surface.ROTATION_270) {
+            parameters.setPreviewSize(480, 640);
+            mCamera.setDisplayOrientation(180);
+        }
+
+        mCamera.setParameters(parameters);
 
         // start preview with new settings
         try {

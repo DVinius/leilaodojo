@@ -1,9 +1,12 @@
 package br.com.vsgdev.leilaodojo.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,6 +23,7 @@ import com.google.android.gms.plus.model.people.Person;
 
 import br.com.vsgdev.leilaodojo.R;
 import br.com.vsgdev.leilaodojo.utils.JSONConverter;
+import br.com.vsgdev.leilaodojo.utils.QuickstartPreferences;
 
 public class LoginActivity
         extends AppCompatActivity
@@ -34,6 +38,14 @@ public class LoginActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final SharedPreferences sharedPreferences = getSharedPreferences(QuickstartPreferences.PREFS_NAME, Context.MODE_PRIVATE);
+        final boolean isPlusSignedId = sharedPreferences.getBoolean(QuickstartPreferences.IS_SIGNED_IN_WITH_PLUS, false);
+        if (isPlusSignedId){
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
+
         setContentView(R.layout.activity_login);
 
         //constroi
@@ -55,7 +67,24 @@ public class LoginActivity
                     .addApi(Plus.API)
                     .addScope(new Scope(Scopes.PROFILE))
                     .addScope(new Scope(Scopes.PLUS_ME))
+                    .addScope(new Scope(Scopes.EMAIL))
                     .build();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        if (requestCode == RC_SIGN_IN) {
+            if (responseCode == RESULT_OK) {
+                final SharedPreferences prefs = getSharedPreferences(QuickstartPreferences.PREFS_NAME, Context.MODE_PRIVATE);
+                prefs.edit().putBoolean(QuickstartPreferences.IS_SIGNED_IN_WITH_PLUS, true).apply();
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            }
+
+            if (!mGoogleApiClient.isConnecting()) {
+                mGoogleApiClient.connect();
+            }
         }
     }
 
@@ -67,7 +96,7 @@ public class LoginActivity
             finish();
         }
 
-        if (v.getId() == findViewById(R.id.sign_in_button).getId()){
+        if (v.getId() == findViewById(R.id.sign_in_button).getId()) {
             mGoogleApiClient.connect();
         }
     }
@@ -75,6 +104,7 @@ public class LoginActivity
     /**
      * Metodo chamado quando a conexao com o
      * ApiClient é estabelecida com sucesso
+     *
      * @param bundle
      */
     @Override
@@ -82,13 +112,20 @@ public class LoginActivity
 
         //Verifica se existe usuario logado, e exibe infos deste
         if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
+            final SharedPreferences prefs = getSharedPreferences(QuickstartPreferences.PREFS_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putBoolean(QuickstartPreferences.IS_SIGNED_IN_WITH_PLUS, true).apply();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+
             Person currentPerson = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
             String personName = currentPerson.getDisplayName();
             String personPhoto = currentPerson.getImage().getUrl();
             String personGooglePlusProfile = currentPerson.getUrl();
-            Log.e("","success");
+            Log.e("", "success");
+
 
             //Cria tela para compartilhamento de conteudo no Plus (postagem)
+            /*
             Intent shareIntent = new PlusShare.Builder(this)
                     .setType("text/plain")
                     .setText("Welcome to the Google+ platform.")
@@ -96,7 +133,7 @@ public class LoginActivity
                     .getIntent();
 
             startActivityForResult(shareIntent, 0);
-
+            */
         }
 
     }
@@ -108,7 +145,6 @@ public class LoginActivity
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        //caindo neste caso
         if (result.hasResolution()) {
             try {
                 //mIntentInProgress = true;

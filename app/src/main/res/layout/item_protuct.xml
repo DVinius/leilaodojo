@@ -5,32 +5,34 @@
 
     <ImageView
         android:id="@+id/iv_imgProduto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginRight="10dp"
+        android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher" />
 
     <TextView
-        android:layout_toRightOf="@+id/iv_imgProduto"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:text="@string/nome_produto"
         android:id="@+id/tv_nomeProduto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_below="@+id/tv_nomeProduto"
+        android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/iv_imgProduto"
-        android:text="@string/descricao"
-        android:id="@+id/tv_descricao"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:text="@string/nome_produto"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_ultimoLance"
-        android:layout_below="@+id/tv_descricao"
-        android:layout_toRightOf="@+id/iv_imgProduto"
-        android:text="@string/ultimo_lance"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_nomeProduto"
+        android:layout_toRightOf="@+id/iv_imgProduto"
+        android:text="@string/ultimo_lance" />
+
+    <TextView
+        android:id="@+id/tv_item_list_end_at"
+        android:layout_below="@id/tv_ultimoLance"
+        android:text="End at:"
+        android:layout_toRightOf="@id/iv_imgProduto"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </RelativeLayout>

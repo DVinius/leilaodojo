@@ -1,6 +1,7 @@
 package br.com.vsgdev.leilaodojo.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import org.json.JSONException;
@@ -11,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import br.com.vsgdev.leilaodojo.models.Auction;
 import br.com.vsgdev.leilaodojo.models.Product;
@@ -33,11 +35,28 @@ public class JSONConverter {
 
         params.put("id", String.valueOf(user.getId()));
         params.put("name", user.getName());
+        params.put("email", user.getEmail());
         params.put("deviceId", user.getDeviceId());
         params.put("gcmToken", user.getGcmToken());
 
         final JSONObject jsonObject = new JSONObject(params);
         return jsonObject;
+    }
+
+    public static User responseToUser(final JSONObject response){
+        final User user = new User();
+
+        try {
+            user.setId(response.getInt("id"));
+            user.setDeviceId(response.getString("deviceId"));
+            user.setGcmToken(response.getString("gcmToken"));
+            user.setName(response.getString("name"));
+            user.setEmail(response.getString("email"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return user;
     }
 
     /**
@@ -55,7 +74,7 @@ public class JSONConverter {
         params.put("estimatedValue", String.valueOf(product.getValorEstimado()));
         if (product.getImgProduto() != null) {
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            product.getImgProduto().compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            product.getImgProduto().compress(Bitmap.CompressFormat.JPEG, 90, baos);
             final byte[] bytes = baos.toByteArray();
             final String encoded = Base64.encodeToString(bytes, Base64.DEFAULT);
             params.put("image", encoded);
@@ -65,16 +84,46 @@ public class JSONConverter {
         return jsonObject;
     }
 
-    public static Product responseToAuction(final JSONObject response){
-        final Product auction = new Product();
+    public static Auction responseToAuction(final JSONObject response) {
+        final Auction auction = new Auction();
         try {
             auction.setId(response.getInt("id"));
-            auction.setNomeProduto(response.getString("name"));
-            auction.setDescProduto(response.getString("description"));
-            auction.setValorEstimado(response.getDouble("estimatedValue"));
-            if (!response.getString("image").isEmpty()){
+            final Product product = new Product();
+
+            product.setNomeProduto(response.getJSONObject("product").getString("name"));
+            product.setDescProduto(response.getJSONObject("product").getString("description"));
+            product.setValorEstimado(response.getJSONObject("product").getDouble("estimatedValue"));
+            auction.setProduct(product);
+            if (!response.getJSONObject("product").getString("image").isEmpty()) {
                 //convert image data to bitmap
+                final String encodedImage = response.getJSONObject("product").getString("image");
+                final byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
+                final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                product.setImgProduto(bitmap);
             }
+            if (response.has("createdAt")){
+                auction.setCreatedAt(DateTimeUtils.strToCalendar(response.getString("createdAt")));
+            }
+            if (response.has("endAt")){
+                auction.setEndAt(DateTimeUtils.strToCalendar(response.getString("endAt")));
+            }
+            if (response.has("bidUser") && !response.getString("bidUser").isEmpty() && !response.getString("bidUser").equals("null")){
+                final Object jsonObj = response.get("bidUser");
+                if (jsonObj != null){
+                    auction.setBidOwner(responseToUser((JSONObject)jsonObj));
+                }
+            }
+            if (response.has("bid") &&  !response.getString("bid").equals("null")){
+                auction.setLastBid(response.getDouble("bid"));
+            }
+
+            if (response.has("owner") && !response.getString("owner").isEmpty() && !response.getString("owner").equals("null")){
+                final Object jsonObj = response.get("owner");
+                if (jsonObj != null){
+                    auction.setOwner(responseToUser((JSONObject)jsonObj));
+                }
+            }
+
             return auction;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -82,35 +131,28 @@ public class JSONConverter {
         }
     }
 
-    public static JSONObject auctionToJson(final Auction auction){
+    public static JSONObject auctionToJson(final Auction auction) {
         final Map<String, Object> params = new HashMap<>();
         params.put("id", String.valueOf(auction.getId()));
-        params.put("product", productToJson(auction.getProduct()));
-        params.put("createdAt", convertCalendar(auction.getCreatedAt()));
-        params.put("endAt", convertCalendar(auction.getEndAt()));
-        params.put("owner", userToJson(auction.getOwner()));
+        if (auction.getProduct() != null) {
+            params.put("product", productToJson(auction.getProduct()));
+        }
+        if (auction.getCreatedAt() != null){
+            params.put("createdAt", DateTimeUtils.convertCalendar(auction.getCreatedAt()));
+        }
+        if (auction.getEndAt() != null){
+            params.put("endAt", DateTimeUtils.convertCalendar(auction.getEndAt()));
+        }
+        if (auction.getOwner() != null) {
+            params.put("owner", userToJson(auction.getOwner()));
+        }
+        if (auction.getBidOwner() != null){
+            params.put("bidOwner", userToJson(auction.getBidOwner()));
+        }
+        params.put("lastBid", auction.getLastBid());
+
         final JSONObject resultJson = new JSONObject(params);
         return resultJson;
     }
 
-    /**
-     * Com base em um objeto Calendar, retorna a um dia e horário no formato: YYYY-MM-DDTHH:mm:ss
-     * @param calendar
-     * @return
-     */
-    private static String convertCalendar(final Calendar calendar){
-        final StringBuilder dateBuilder = new StringBuilder();
-        dateBuilder.append(calendar.get(Calendar.YEAR));
-        dateBuilder.append("-");
-        dateBuilder.append(calendar.get(Calendar.MONTH)+1);
-        dateBuilder.append("-");
-        dateBuilder.append(calendar.get(Calendar.DAY_OF_MONTH));
-        dateBuilder.append("T");
-        dateBuilder.append(calendar.get(Calendar.HOUR_OF_DAY));
-        dateBuilder.append(":");
-        dateBuilder.append(calendar.get(Calendar.MINUTE));
-        dateBuilder.append(":");
-        dateBuilder.append(calendar.get(Calendar.SECOND));
-        return dateBuilder.toString();
-    }
 }

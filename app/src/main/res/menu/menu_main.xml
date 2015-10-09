@@ -2,15 +2,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="br.com.vsgdev.leilaodojo.activities.MainActivity">
+
+
+
+    <item
+        android:id="@+id/action_new_product"
+        android:orderInCategory="98"
+        android:title="@string/novo"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_nearest_auctions"
+        android:orderInCategory="99"
+        android:title="@string/nearest_auctions"
+        app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_new_product"
-        android:orderInCategory="99"
-        android:title="@string/novo"
-        app:showAsAction="ifRoom" />
 </menu>

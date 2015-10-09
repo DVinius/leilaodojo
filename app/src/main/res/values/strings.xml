@@ -23,4 +23,8 @@
         <item>Galery</item>
         <item>Camera</item>
     </string-array>
+    <string name="nearest_auctions">Nearest Auctions</string>
+    <string name="end_at_hours">End in: %1$s hours</string>
+    <string name="last_bid">Last bid: US$ %1$s</string>
+    <string name="you_are_this_auction_owner">You are the owner of this auction.</string>
 </resources>

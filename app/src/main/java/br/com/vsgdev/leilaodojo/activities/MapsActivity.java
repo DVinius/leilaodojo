@@ -141,12 +141,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         mMap.setMyLocationEnabled(true);
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-        findDirections(-5.0848591, -42.8166603, -5.088600485121024, -42.80707485973835, GMapV2Direction.MODE_WALKING);
+        findDirections(-5.0848591, -42.8166603,
+                -5.088600485121024, -42.80707485973835,
+                GMapV2Direction.MODE_DRIVING);
     }
 }

@@ -27,4 +27,5 @@
     <string name="end_at_hours">End in: %1$s hours</string>
     <string name="last_bid">Last bid: US$ %1$s</string>
     <string name="you_are_this_auction_owner">You are the owner of this auction.</string>
+    <string name="facebook_app_id" translatable="false">1389169854715944</string>
 </resources>

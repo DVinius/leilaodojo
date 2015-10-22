@@ -13,6 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,17 +41,51 @@ public class LoginActivity
     private static final int RC_SIGN_IN = 1;
     public Button bt_login_registre;
     private GoogleApiClient mGoogleApiClient;
+    CallbackManager callbackManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        setContentView(R.layout.activity_login);
+
+        final AccessToken token = AccessToken.getCurrentAccessToken();
+        if (token != null){
+            Log.d("AccessTkn",token.toString());
+            //startActivity(new Intent(this, MainActivity.class));
+            //sendFBIDtoServer();
+        }
+
+        callbackManager = CallbackManager.Factory.create();
+        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // App code
+                Log.d("AccessTkn",loginResult.getAccessToken().toString());
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+                Log.d("AccessTknExc", exception.getMessage());
+            }
+
+        });
+
+
 
         final SharedPreferences sharedPreferences = getSharedPreferences(QuickstartPreferences.PREFS_NAME, Context.MODE_PRIVATE);
         final boolean isPlusSignedId = sharedPreferences.getBoolean(QuickstartPreferences.IS_SIGNED_IN_WITH_PLUS, false);
-        if (isPlusSignedId){
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
+        if (isPlusSignedId) {
+            //startActivity(new Intent(this, MainActivity.class));
+            //finish();
         }
 
         setContentView(R.layout.activity_login);
@@ -57,6 +99,20 @@ public class LoginActivity
         findViewById(R.id.sign_in_button).setOnClickListener(this);
 
         JSONConverter.deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
     }
 
     protected void buildGoogleApiClient() {

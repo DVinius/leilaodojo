@@ -30,7 +30,6 @@ public class GMapV2Direction {
                 + "&sensor=false&units=metric&mode=" + mode;
 
         try {
-
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(url);
 

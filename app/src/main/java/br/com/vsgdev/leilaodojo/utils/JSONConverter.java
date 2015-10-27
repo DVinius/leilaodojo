@@ -4,16 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 
-import org.apache.http.HttpClientConnection;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import br.com.vsgdev.leilaodojo.models.Auction;
 import br.com.vsgdev.leilaodojo.models.Product;
@@ -80,7 +76,6 @@ public class JSONConverter {
             final String encoded = Base64.encodeToString(bytes, Base64.DEFAULT);
             params.put("image", encoded);
         }
-
         final JSONObject jsonObject = new JSONObject(params);
         return jsonObject;
     }
